@@ -44,8 +44,6 @@ import com.breakneck.domain.model.ServiceBoundState
 import com.breakneck.domain.model.ServiceIntent
 import com.breakneck.domain.model.ServiceState
 import com.breakneck.domain.model.SubscriptionPlan
-import com.breakneck.domain.usecase.settings.GetApiToken
-import com.breakneck.domain.usecase.settings.RegenerateApiToken
 import com.breakneck.sms_modem.R
 import com.breakneck.sms_modem.databinding.ActivityMainBinding
 import com.breakneck.sms_modem.presentation.fragment.InfoFragment
@@ -69,7 +67,6 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.android.ext.android.inject
 
 
 class MainActivity : AppCompatActivity(), MainFragment.ActivityInterface {
@@ -80,8 +77,6 @@ class MainActivity : AppCompatActivity(), MainFragment.ActivityInterface {
 
     private val vm by viewModel<MainActivityViewModel>()
     private val messageFragmentViewModel by viewModel<MessageFragmentViewModel>()
-    private val getApiToken: GetApiToken by inject()
-    private val regenerateApiToken: RegenerateApiToken by inject()
 
     lateinit var boundNetworkService: NetworkService
 
@@ -514,11 +509,16 @@ class MainActivity : AppCompatActivity(), MainFragment.ActivityInterface {
         val dialog = BottomSheetDialog(this)
         dialog.setContentView(R.layout.dialog_how_to_use)
 
-        var apiToken = getApiToken.execute()
         val apiAuthorizationTextView = dialog.findViewById<TextView>(R.id.apiAuthorizationTextView)!!
-        apiAuthorizationTextView.text = getString(R.string.api_token_request, apiToken)
+        fun displayApiToken() {
+            vm.apiToken.value?.let { token ->
+                apiAuthorizationTextView.text = getString(R.string.api_token_request, token)
+            }
+        }
+        displayApiToken()
 
         dialog.findViewById<Button>(R.id.copyApiTokenButton)!!.setOnClickListener {
+            val apiToken = vm.apiToken.value ?: return@setOnClickListener
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             clipboard.setPrimaryClip(
                 ClipData.newPlainText(getString(R.string.api_authorization_header), apiToken)
@@ -532,8 +532,8 @@ class MainActivity : AppCompatActivity(), MainFragment.ActivityInterface {
                 .setMessage(R.string.regenerate_api_token_warning)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.confirm) { _, _ ->
-                    apiToken = regenerateApiToken.execute()
-                    apiAuthorizationTextView.text = getString(R.string.api_token_request, apiToken)
+                    vm.regenerateApiToken()
+                    displayApiToken()
                 }
                 .show()
         }

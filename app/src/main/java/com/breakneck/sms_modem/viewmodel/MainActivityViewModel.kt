@@ -21,10 +21,12 @@ import com.breakneck.domain.usecase.settings.GetPort
 import com.breakneck.domain.usecase.service.GetServiceState
 import com.breakneck.domain.usecase.service.SaveServiceRemainingTimeInMillis
 import com.breakneck.domain.usecase.settings.GetDeviceIpAddress
+import com.breakneck.domain.usecase.settings.GetApiToken
 import com.breakneck.domain.usecase.settings.GetRemainingAds
 import com.breakneck.domain.usecase.settings.SaveMessageDestinationUrl
 import com.breakneck.domain.usecase.settings.SavePort
 import com.breakneck.domain.usecase.settings.SaveRemainingAds
+import com.breakneck.domain.usecase.settings.RegenerateApiToken
 
 class MainActivityViewModel(
     private val savePort: SavePort,
@@ -36,7 +38,9 @@ class MainActivityViewModel(
     private val getServiceRemainingTimeInMillis: GetServiceRemainingTimeInMillis,
     private val getDeviceIpAddress: GetDeviceIpAddress,
     private val getRemainingAds: GetRemainingAds,
-    private val saveRemainingAds: SaveRemainingAds
+    private val saveRemainingAds: SaveRemainingAds,
+    private val getApiTokenUseCase: GetApiToken,
+    private val regenerateApiTokenUseCase: RegenerateApiToken
 ): ViewModel() {
 
     val TAG = "MainViewModel"
@@ -68,6 +72,10 @@ class MainActivityViewModel(
     private val _serverIpAddress = MutableLiveData<IpAddress>()
     val serverIpAddress: LiveData<IpAddress>
         get() = _serverIpAddress
+
+    private val _apiToken = MutableLiveData<String>()
+    val apiToken: LiveData<String>
+        get() = _apiToken
 
     private val _serviceError = MutableLiveData<String>()
     val serviceError: LiveData<String>
@@ -101,6 +109,7 @@ class MainActivityViewModel(
         getServiceRemainingTime()
         getServiceIpAddress()
         getRemainingAds()
+        loadApiToken()
     }
 
     override fun onCleared() {
@@ -111,6 +120,14 @@ class MainActivityViewModel(
     private fun getPort() {
         _port.value = getPort.execute()
         Log.e(TAG, "Port got: ${port.value}")
+    }
+
+    private fun loadApiToken() {
+        _apiToken.value = getApiTokenUseCase.execute()
+    }
+
+    fun regenerateApiToken() {
+        _apiToken.value = regenerateApiTokenUseCase.execute()
     }
 
     fun savePort(port: Port) {

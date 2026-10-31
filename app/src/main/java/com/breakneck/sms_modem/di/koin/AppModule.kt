@@ -26,7 +26,9 @@ val appModule = module {
             getServiceRemainingTimeInMillis = get(),
             getDeviceIpAddress = get(),
             getRemainingAds = get(),
-            saveRemainingAds = get()
+            saveRemainingAds = get(),
+            getApiTokenUseCase = get(),
+            regenerateApiTokenUseCase = get()
         )
     }
 
