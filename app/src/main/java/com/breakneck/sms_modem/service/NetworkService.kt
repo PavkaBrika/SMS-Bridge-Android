@@ -47,6 +47,8 @@ import com.breakneck.domain.usecase.util.FromTimestampToDateString
 import com.breakneck.sms_modem.R
 import com.breakneck.sms_modem.presentation.activity.MainActivity
 import com.breakneck.sms_modem.receiver.SMSBroadcastReceiver
+import com.breakneck.sms_modem.service.api.dto.SendSmsApiRequest
+import com.breakneck.sms_modem.service.api.dto.SmsApiResponse
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
@@ -88,13 +90,6 @@ const val DISABLED_NOTIFICATION_ID = 21341123
 private const val MAX_SMS_API_BODY_BYTES = 16 * 1024L
 private const val MAX_SMS_API_MESSAGE_LENGTH = 1000
 private val SMS_PHONE_NUMBER_PATTERN = Regex("\\+?[0-9]{3,20}")
-
-private data class SendSmsApiRequest(
-    val phoneNumber: String? = null,
-    val message: String? = null
-)
-
-private data class SmsApiResponse(val status: String)
 
 open class NetworkService : Service() {
 
