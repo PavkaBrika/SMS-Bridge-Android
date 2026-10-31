@@ -93,7 +93,10 @@ dependencies {
     implementation(project(path = ":data"))
 
     //Appodeal ads
-    implementation("com.appodeal.ads:sdk:3.2.0.+") {
+    implementation("com.appodeal.ads:sdk:3.6.0.0") {
+        exclude(group = "com.appodeal.ads.sdk.networks", module = "pangle")
+        exclude(group = "com.applovin.mediation", module = "bytedance-adapter")
+        exclude(group = "io.bidmachine", module = "ads.networks.pangle")
         exclude(group = "com.appodeal.ads.sdk.networks", module = "admob")
         exclude(group = "io.bidmachine", module = "ads.networks.notsy")
         exclude(group = "com.google.android.gms", module = "play-services-ads")
