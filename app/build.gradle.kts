@@ -52,10 +52,11 @@ android {
 
 dependencies {
     //Ktor Server
-    implementation("io.ktor:ktor-server-core:1.6.4")
-    implementation("io.ktor:ktor-gson:1.6.4")
-    implementation("io.ktor:ktor-server-netty:1.6.2")
-    implementation("io.ktor:ktor-websockets:1.6.2")
+    val ktorVersion = "2.3.12"
+    implementation("io.ktor:ktor-server-core:$ktorVersion")
+    implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-gson:$ktorVersion")
+    implementation("io.ktor:ktor-server-netty:$ktorVersion")
 
     //Network
     val okhttpVersion = "4.11.0"
