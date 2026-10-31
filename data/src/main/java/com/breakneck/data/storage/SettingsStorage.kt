@@ -11,6 +11,10 @@ interface SettingsStorage {
 
     fun getPort(): PortData
 
+    fun getApiToken(): String
+
+    fun regenerateApiToken(): String
+
     fun saveMessageDestinationUrl(url: MessageDestinationUrlData)
 
     fun getMessageDestinationUrl(): MessageDestinationUrlData

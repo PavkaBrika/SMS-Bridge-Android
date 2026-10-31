@@ -11,6 +11,10 @@ interface SettingsRepository {
 
     fun getPort(): Port
 
+    fun getApiToken(): String
+
+    fun regenerateApiToken(): String
+
     fun saveMessageDestinationUrl(url: MessageDestinationUrl)
 
     fun getMessageDestinationUrl(): MessageDestinationUrl

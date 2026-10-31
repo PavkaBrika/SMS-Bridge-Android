@@ -21,6 +21,14 @@ class SettingsRepositoryImplementation(private val settingsStorage: SettingsStor
         return Port(settingsStorage.getPort().value)
     }
 
+    override fun getApiToken(): String {
+        return settingsStorage.getApiToken()
+    }
+
+    override fun regenerateApiToken(): String {
+        return settingsStorage.regenerateApiToken()
+    }
+
     override fun saveMessageDestinationUrl(url: MessageDestinationUrl) {
         settingsStorage.saveMessageDestinationUrl(MessageDestinationUrlData(value = url.value))
     }

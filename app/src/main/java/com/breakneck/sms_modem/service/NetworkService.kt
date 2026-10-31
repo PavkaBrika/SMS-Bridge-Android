@@ -33,6 +33,7 @@ import com.breakneck.domain.model.Sender
 import com.breakneck.domain.model.ServiceIntent
 import com.breakneck.domain.model.ServiceState
 import com.breakneck.domain.usecase.settings.GetPort
+import com.breakneck.domain.usecase.settings.GetApiToken
 import com.breakneck.domain.usecase.message.SaveSentMessage
 import com.breakneck.domain.usecase.service.GetServiceRemainingTimeInMillis
 import com.breakneck.domain.usecase.service.SaveServiceRemainingTimeInMillis
@@ -50,14 +51,21 @@ import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
 import io.ktor.gson.gson
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.request.receive
+import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
+import io.ktor.routing.post
 import io.ktor.routing.routing
+import kotlinx.coroutines.CancellationException
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
 import org.koin.android.ext.android.inject
 import java.lang.StringBuilder
+import java.security.MessageDigest
 import java.net.BindException
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -77,12 +85,24 @@ const val SERVICE_NOTIFICATION_ID = 213431121
 const val REMINDER_NOTIFICATION_ID = 21341122
 const val DISABLED_NOTIFICATION_ID = 21341123
 
+private const val MAX_SMS_API_BODY_BYTES = 16 * 1024L
+private const val MAX_SMS_API_MESSAGE_LENGTH = 1000
+private val SMS_PHONE_NUMBER_PATTERN = Regex("\\+?[0-9]{3,20}")
+
+private data class SendSmsApiRequest(
+    val phoneNumber: String? = null,
+    val message: String? = null
+)
+
+private data class SmsApiResponse(val status: String)
+
 open class NetworkService : Service() {
 
     private val binder: IBinder = NetworkServiceBinder()
     private lateinit var broadcaster: LocalBroadcastManager
 
     val getPort: GetPort by inject()
+    val getApiToken: GetApiToken by inject()
     val saveServiceState: SaveServiceState by inject()
     val saveSentMessage: SaveSentMessage by inject()
     val getServiceRemainingTimeInMillis: GetServiceRemainingTimeInMillis by inject()
@@ -259,23 +279,75 @@ open class NetworkService : Service() {
                 get("/") {
                     call.respondText("SERVICE ENABLED")
                 }
-                get("/{phone}/{message}") {
-                    val phone = call.parameters["phone"]
-                    val message = call.parameters["message"]
-                    if ((phone != "") && (message != "")) {
+
+                post("/api/sms") {
+                    val expectedToken = getApiToken.execute()
+                    val authorization = call.request.headers[HttpHeaders.Authorization]
+                    if (!isAuthorized(authorization, expectedToken)) {
+                        call.respond(HttpStatusCode.Unauthorized, SmsApiResponse("unauthorized"))
+                        return@post
+                    }
+
+                    val contentLength = call.request.headers[HttpHeaders.ContentLength]?.toLongOrNull()
+                    if (contentLength != null && contentLength > MAX_SMS_API_BODY_BYTES) {
+                        call.respond(HttpStatusCode.PayloadTooLarge, SmsApiResponse("request_too_large"))
+                        return@post
+                    }
+
+                    val request = try {
+                        call.receive<SendSmsApiRequest>()
+                    } catch (exception: CancellationException) {
+                        throw exception
+                    } catch (exception: Exception) {
+                        call.respond(HttpStatusCode.BadRequest, SmsApiResponse("invalid_json"))
+                        return@post
+                    }
+
+                    val phoneNumber = request.phoneNumber
+                    val message = request.message
+                    if (phoneNumber == null || !phoneNumber.matches(SMS_PHONE_NUMBER_PATTERN)) {
+                        call.respond(HttpStatusCode.BadRequest, SmsApiResponse("invalid_phone_number"))
+                        return@post
+                    }
+                    if (message.isNullOrBlank() || message.length > MAX_SMS_API_MESSAGE_LENGTH) {
+                        call.respond(HttpStatusCode.BadRequest, SmsApiResponse("invalid_message"))
+                        return@post
+                    }
+
+                    try {
                         val date = FromTimestampToDateString().execute(
                             System.currentTimeMillis(),
                             getCurrentLocale(applicationContext)
                         )
-                        sendSMS(phoneNumber = phone!!, message = message!!, date = date)
-                        call.respondText("$date: Message $message sent to $phone")
-                    } else {
-                        call.respondText("Error")
+                        sendSMS(phoneNumber = phoneNumber, message = message, date = date)
+                        call.respond(HttpStatusCode.Accepted, SmsApiResponse("accepted"))
+                    } catch (exception: SecurityException) {
+                        call.respond(HttpStatusCode.Forbidden, SmsApiResponse("sms_permission_missing"))
+                    } catch (exception: IllegalArgumentException) {
+                        call.respond(HttpStatusCode.BadRequest, SmsApiResponse("invalid_sms_request"))
+                    } catch (exception: Exception) {
+                        Log.e(TAG, "SMS API dispatch failed")
+                        call.respond(HttpStatusCode.InternalServerError, SmsApiResponse("sms_send_failed"))
                     }
                 }
             }
         }.start(wait = false)
         Log.e(TAG, "Server created")
+    }
+
+    private fun isAuthorized(authorization: String?, expectedToken: String): Boolean {
+        val prefix = "Bearer "
+        if (authorization == null || !authorization.startsWith(prefix, ignoreCase = true)) {
+            return false
+        }
+        val providedToken = authorization.substring(prefix.length)
+        if (providedToken.length != expectedToken.length) {
+            return false
+        }
+        return MessageDigest.isEqual(
+            expectedToken.toByteArray(Charsets.UTF_8),
+            providedToken.toByteArray(Charsets.UTF_8)
+        )
     }
 
     fun createNotificationChannel() {
