@@ -1,6 +1,8 @@
 package com.breakneck.sms_modem.presentation.activity
 
 import android.content.BroadcastReceiver
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -26,6 +28,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -41,6 +44,8 @@ import com.breakneck.domain.model.ServiceBoundState
 import com.breakneck.domain.model.ServiceIntent
 import com.breakneck.domain.model.ServiceState
 import com.breakneck.domain.model.SubscriptionPlan
+import com.breakneck.domain.usecase.settings.GetApiToken
+import com.breakneck.domain.usecase.settings.RegenerateApiToken
 import com.breakneck.sms_modem.R
 import com.breakneck.sms_modem.databinding.ActivityMainBinding
 import com.breakneck.sms_modem.presentation.fragment.InfoFragment
@@ -59,10 +64,12 @@ import com.breakneck.sms_modem.viewmodel.MainActivityViewModel
 import com.breakneck.sms_modem.viewmodel.MessageFragmentViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.android.ext.android.inject
 
 
 class MainActivity : AppCompatActivity(), MainFragment.ActivityInterface {
@@ -73,6 +80,8 @@ class MainActivity : AppCompatActivity(), MainFragment.ActivityInterface {
 
     private val vm by viewModel<MainActivityViewModel>()
     private val messageFragmentViewModel by viewModel<MessageFragmentViewModel>()
+    private val getApiToken: GetApiToken by inject()
+    private val regenerateApiToken: RegenerateApiToken by inject()
 
     lateinit var boundNetworkService: NetworkService
 
@@ -504,6 +513,30 @@ class MainActivity : AppCompatActivity(), MainFragment.ActivityInterface {
     private fun showHowToUseDialog() {
         val dialog = BottomSheetDialog(this)
         dialog.setContentView(R.layout.dialog_how_to_use)
+
+        var apiToken = getApiToken.execute()
+        val apiAuthorizationTextView = dialog.findViewById<TextView>(R.id.apiAuthorizationTextView)!!
+        apiAuthorizationTextView.text = getString(R.string.api_token_request, apiToken)
+
+        dialog.findViewById<Button>(R.id.copyApiTokenButton)!!.setOnClickListener {
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            clipboard.setPrimaryClip(
+                ClipData.newPlainText(getString(R.string.api_authorization_header), apiToken)
+            )
+            Toast.makeText(this, R.string.api_token_copied, Toast.LENGTH_SHORT).show()
+        }
+
+        dialog.findViewById<Button>(R.id.regenerateApiTokenButton)!!.setOnClickListener {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.regenerate_api_token)
+                .setMessage(R.string.regenerate_api_token_warning)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.confirm) { _, _ ->
+                    apiToken = regenerateApiToken.execute()
+                    apiAuthorizationTextView.text = getString(R.string.api_token_request, apiToken)
+                }
+                .show()
+        }
 
         if ((vm.serverIpAddress.value != null) && (vm.serverIpAddress.value!!.value != "")) {
             dialog.findViewById<TextView>(R.id.requestToSendTextView)!!.text = getString(

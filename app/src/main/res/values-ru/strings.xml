@@ -50,11 +50,18 @@
     <string name="sorry_this_section_is_not_available_yet">Извините, этот раздел пока недоступен</string>
     <string name="how_to_use">Как использовать?</string>
     <string name="your_request_to_send_an_sms_message">Ваш запрос на отправку SMS-сообщения:</string>
-    <string name="send_message_request">%1$s:%2$s/сотовый_номер_получателя/текст_сообщения</string>
-    <string name="how_to_use_guide">На главном экране вы можете увидеть IP-адрес, к которому подключено ваше устройство, и порт, который вы можете задать самостоятельно в настройках. Используя этот IP-адрес и порт, вы можете отправить запрос в виде \'ip:port/recipient-phone-number/message-text\', и это сообщение будет отправлено с вашего смартфона в соответствии с данными, указанными в запросе. Также приложение может отправить запрос на сервер по указанному в настройках URL-адресу в формате \'your-URL-address/sender-phone-number/message-text/\'.</string>
+    <string name="send_message_request">POST http://%1$s:%2$s/api/sms</string>
+    <string name="how_to_use_guide">Запустите службу и отправьте POST-запрос на адрес ниже. Добавьте Bearer-токен и JSON-тело, показанные здесь. Полученные SMS приложение пересылает на URL из настроек. Используйте API только в доверенной сети: HTTP не шифрует трафик.</string>
     <string name="address_send_received_message">%1$s/номер_телефона_получателя/текст_сообщения</string>
     <string name="address_to_which_the_application_will_send_received_sms_messages">Адрес, на который приложение будет отправлять полученные SMS-сообщения</string>
     <string name="your_code_is_20">Ваш код - 20%1$s</string>
     <string name="thanks_for_code">Спасибо за код</string>
     <string name="enter_the_url_where_sms_will_be_sent">Введите URL-адрес, на который будут отправляться SMS</string>
+    <string name="api_authorization_header">Заголовок авторизации</string>
+    <string name="api_token_request">Authorization: Bearer %1$s</string>
+    <string name="copy_api_token">Скопировать API-токен</string>
+    <string name="api_token_copied">API-токен скопирован</string>
+    <string name="regenerate_api_token">Создать новый API-токен</string>
+    <string name="regenerate_api_token_warning">Текущий токен перестанет работать. Обновите токен во всех клиентах API.</string>
+    <string name="api_json_example">Content-Type: application/json\n\n{\"phoneNumber\": \"+15551234567\", \"message\": \"Привет\"}</string>
 </resources>

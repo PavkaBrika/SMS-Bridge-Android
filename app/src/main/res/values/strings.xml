@@ -68,12 +68,19 @@
     <string name="popular" translatable="false">Popular</string>
     <string name="sorry_this_section_is_not_available_yet">Sorry, this section is not available yet</string>
     <string name="how_to_use">How to use?</string>
-    <string name="send_message_request">%1$s:%2$s/recipient\'s_cell_number/message_text</string>
-    <string name="how_to_use_guide">On the main screen, you can see your IP address that your device is connected to and the port that you can configure yourself in settings. Using this IP address and port, you can send a request in the form of \'ip:port/recipient-phone-number/message-text\', and this message will be sent from your smartphone according to the data specified in the request. Also, the application can send a request to the server at the URL address you specify in the settings in the format \'your-URL-address/sender-phone-number/message-text/\'.</string>
+    <string name="send_message_request">POST http://%1$s:%2$s/api/sms</string>
+    <string name="how_to_use_guide">Start the service and send a POST request to the address below. Include the Bearer token and JSON body shown here. The app forwards received SMS messages to the URL configured in settings. Use this API only on a trusted network: HTTP does not encrypt traffic.</string>
     <string name="address_send_received_message">%1$s/Handynummer des Absenders/message_text</string>
     <string name="address_to_which_the_application_will_send_received_sms_messages">Address to which the application will send received SMS messages</string>
     <string name="your_request_to_send_an_sms_message">Your request to send an SMS message:</string>
     <string name="your_code_is_20">Your Code is 20%1$s</string>
     <string name="thanks_for_code">Thanks for code</string>
     <string name="enter_the_url_where_sms_will_be_sent">Enter the URL where SMS will be sent</string>
+    <string name="api_authorization_header">Authorization header</string>
+    <string name="api_token_request">Authorization: Bearer %1$s</string>
+    <string name="copy_api_token">Copy API token</string>
+    <string name="api_token_copied">API token copied</string>
+    <string name="regenerate_api_token">Regenerate API token</string>
+    <string name="regenerate_api_token_warning">This invalidates the current token. Update every client using this API.</string>
+    <string name="api_json_example">Content-Type: application/json\n\n{\"phoneNumber\": \"+15551234567\", \"message\": \"Hello\"}</string>
 </resources>
