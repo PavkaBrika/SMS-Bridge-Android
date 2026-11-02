@@ -23,12 +23,12 @@ SMS Modem connects your backend to a phone's SMS capabilities. Send messages thr
 ### Send an SMS from the server
 An HTTP request triggers an SMS sent from the Android phone.
 
-
+https://github.com/user-attachments/assets/aabb51cb-97ae-47f5-b935-f090c6d7e9a1
 
 ### Forward an incoming SMS to the server
 An incoming SMS triggers a POST request to the configured endpoint.
 
-
+https://github.com/user-attachments/assets/31d8d414-356e-45fd-8b60-c47f5e7b0a74
 
 ## 🧰 Built with
 
