@@ -473,7 +473,7 @@ open class NetworkService : Service() {
         val notification = NotificationCompat.Builder(this, notificationChannelId)
             .setSmallIcon(R.drawable.ic_notification_icon)
             .setContentTitle(
-                getString(R.string.sms_modem_service_has_stopped_working)
+                getString(R.string.sms_bridge_service_has_stopped_working)
             )
             .setContentText(getString(R.string.please_watch_ads_or_buy_a_subscription_to_continue_service_work))
             .setContentIntent(notificationClickPendingIntent)

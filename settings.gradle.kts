@@ -14,7 +14,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "sms_modem"
+rootProject.name = "SMS Bridge"
 include(":app")
 include(":data")
 include(":domain")

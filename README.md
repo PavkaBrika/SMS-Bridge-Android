@@ -1,12 +1,12 @@
-# SMS Modem 📱
+# SMS Bridge 📱
 
 <p align="center">
-  <img src="app/src/main/ic_launcher-playstore.png" alt="SMS Modem app icon" width="144" />
+  <img src="app/src/main/ic_launcher-playstore.png" alt="SMS Bridge app icon" width="144" />
 </p>
 
 <p align="center"><strong>Turn an Android phone into an SMS gateway for your server.</strong></p>
 
-SMS Modem connects your backend to a phone's SMS capabilities. Send messages through an HTTP API running on the device, and forward incoming SMS messages to your own server.
+SMS Bridge connects your backend to a phone's SMS capabilities. Send messages through an HTTP API running on the device, and forward incoming SMS messages to your own server.
 
 ## ✨ What the app does
 
@@ -62,8 +62,8 @@ The project is split into three Gradle modules:
 Clone the repository and build the debug app with the included Gradle wrapper:
 
 ```bash
-git clone https://github.com/PavkaBrika/sms_modem.git
-cd sms_modem
+git clone https://github.com/PavkaBrika/SMS_Bridge_Android.git
+cd SMS_Bridge_Android
 bash gradlew :app:assembleDebug
 ```
 
@@ -89,7 +89,7 @@ Replace the example IP address, token, and recipient number with your own values
 curl -X POST 'http://192.168.1.100:5555/api/sms' \
   -H 'Authorization: Bearer YOUR_API_TOKEN' \
   -H 'Content-Type: application/json' \
-  -d '{"phoneNumber":"+15551234567","message":"Hello from SMS Modem"}'
+  -d '{"phoneNumber":"+15551234567","message":"Hello from SMS Bridge"}'
 ```
 
 The API returns HTTP `202` with:

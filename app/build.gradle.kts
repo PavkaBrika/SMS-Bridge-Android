@@ -14,7 +14,7 @@ android {
         targetSdk = 34
         versionCode = 2
         versionName = "1.1"
-        setProperty("archivesBaseName", "SMS-modem-v$versionCode($versionName)")
+        setProperty("archivesBaseName", "SMS-Bridge-v$versionCode($versionName)")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
